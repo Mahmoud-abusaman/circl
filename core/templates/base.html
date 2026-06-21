@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circl - Mentorship</title>
+    <link rel="icon" type="image/png" href="{{ static('core/img/favicon.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slateWhite: '#F8FAFC',
+                        deepCharcoal: '#0F172A',
+                        mutedEmerald: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-emerald {
+            background-color: #059669;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-emerald:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.4);
+        }
+
+        .app-nav {
+            background-color: #0F172A;
+            color: white;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .badge-pulse {
+            animation: pulseBadge 2s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col">
+    {% set is_auth = request.user.is_authenticated %}
+    {% if is_auth %}
+    <nav class="app-nav p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="{{ url('dashboard') }}"
+                class="flex items-center gap-2.5 text-2xl font-bold tracking-tighter text-white">
+                <img src="{{ static('core/img/favicon.png') }}" alt="Circl logo"
+                    class="w-8 h-8 rounded-full object-cover border border-white/20">
+                Circl<span class="text-mutedEmerald">.</span>
+            </a>
+            <div class="flex items-center space-x-6">
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center space-x-5 text-sm font-semibold tracking-wide mr-4">
+                    <a href="{{ url('dashboard') }}" class="text-gray-300 hover:text-white transition-colors">Find
+                        Mentors</a>
+                    <a href="{{ url('my_mentorships') }}" class="text-gray-300 hover:text-white transition-colors">My
+                        Learning</a>
+                    <a href="{{ url('my_requests') }}" class="text-gray-300 hover:text-white transition-colors">My
+                        Teaching</a>
+                </div>
+
+                <div
+                    class="flex items-center text-sm font-medium bg-mutedEmerald/20 text-mutedEmerald px-3 py-1.5 rounded-full border border-mutedEmerald/30">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    Tokens: {{ request.user.token_balance }}
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url('profile_edit') }}"
+                        class="text-sm font-medium hover:text-mutedEmerald transition-colors">Profile</a>
+                    <form action="{{ url('logout') }}" method="post" class="inline">
+                        {{ csrf_input }}
+                        <button type="submit"
+                            class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-8">
+        {% set messages = get_messages(request) %}
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div
+                class="p-4 rounded-lg flex items-center justify-between {% if message.tags == 'error' %}bg-red-100 text-red-800 border bg-opacity-70 border-red-200{% else %}bg-green-100 text-green-800 border bg-opacity-70 border-green-200{% endif %}">
+                <div>{{ message }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+
+</html>

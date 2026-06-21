@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+        <h2 class="text-2xl font-extrabold text-deepCharcoal flex items-center">
+            <svg class="w-7 h-7 mr-2 text-mutedEmerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            My Teaching (Requests)
+        </h2>
+        <span class="text-gray-500 text-sm font-medium">Mentorship requested from you</span>
+    </div>
+
+    <div class="space-y-4">
+        {% if meetings %}
+        {% for m in meetings %}
+        <div
+            class="glass-card p-6 rounded-xl border-l-4 {% if m.status == 'PENDING' %}border-yellow-400{% elif m.status == 'ACCEPTED' %}border-green-500{% elif m.status == 'COMPLETED' %}border-blue-500{% else %}border-red-500{% endif %} bg-white shadow-sm flex flex-col md:flex-row md:items-start gap-4">
+
+            <div class="flex-grow">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <h4 class="font-bold text-lg text-deepCharcoal">Mentee: <a
+                                href="{{ url('user_profile', args=[m.mentee.id]) }}"
+                                class="hover:text-mutedEmerald hover:underline">{{ m.mentee.first_name }}</a></h4>
+                        <p class="text-xs text-gray-500 mt-0.5">Requested on {{ m.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mt-3 text-sm text-gray-700">
+                    <p class="mb-2"><strong class="font-semibold text-gray-900">Objectives:</strong> {{
+                        m.session_objectives }}</p>
+                    <p><strong class="font-semibold text-gray-900">Why you?</strong> {{ m.why_choose_mentor }}</p>
+                </div>
+
+                {% if m.calendly_link %}
+                <div class="mt-4 p-3 border border-blue-100 bg-blue-50 rounded-lg flex items-start gap-3">
+                    <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <div>
+                        <p class="text-xs font-bold text-blue-800 uppercase tracking-wide mb-1">Mentee's Calendly Link
+                        </p>
+                        <a href="{{ m.calendly_link }}" target="_blank"
+                            class="text-sm text-blue-600 hover:underline break-all font-medium">{{ m.calendly_link
+                            }}</a>
+                        {% if m.status == 'PENDING' %}
+                        <p class="text-xs text-blue-700 mt-1">Book a time here and then accept this request.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div
+                class="flex flex-col items-start md:items-end md:w-48 flex-shrink-0 space-y-3 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-center w-full
+                        {% if m.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                        {% elif m.status == 'ACCEPTED' %}bg-green-100 text-green-800
+                        {% elif m.status == 'COMPLETED' %}bg-blue-100 text-blue-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ m.status }}
+                </span>
+
+                {% if m.status == 'PENDING' %}
+                <form action="{{ url('meeting_action', args=[m.id, 'accept']) }}" method="POST" class="w-full">
+                    {{ csrf_input }}
+                    <button type="submit"
+                        class="w-full text-center text-xs btn-emerald px-4 py-2 rounded-lg font-medium shadow-sm mb-2">Accept
+                        (+5 TKN Later)</button>
+                </form>
+                <form action="{{ url('meeting_action', args=[m.id, 'reject']) }}" method="POST" class="w-full">
+                    {{ csrf_input }}
+                    <button type="submit"
+                        class="w-full text-center text-xs bg-white text-red-600 border border-red-200 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-colors">Decline</button>
+                </form>
+
+                {% elif m.status == 'ACCEPTED' %}
+                <p class="text-[11px] text-gray-500 text-center w-full mb-2">Once the session is over, mark it done to
+                    get paid.</p>
+                <form action="{{ url('meeting_action', args=[m.id, 'complete']) }}" method="POST" class="w-full">
+                    {{ csrf_input }}
+                    <button type="submit"
+                        class="w-full text-center text-xs bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors">Mark
+                        Session Done</button>
+                </form>
+
+                {% elif m.status == 'COMPLETED' and m.id not in evaluated_meeting_ids %}
+                <a href="{{ url('evaluate_meeting', args=[m.id]) }}"
+                    class="w-full text-center text-xs btn-emerald px-4 py-2 rounded-lg font-medium shadow-sm">Evaluate
+                    Mentee</a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="p-12 text-center bg-white rounded-xl border border-dashed border-gray-300">
+            <p class="text-gray-500">Mentees haven't requested any sessions with you yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

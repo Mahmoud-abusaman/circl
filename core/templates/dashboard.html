@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Left Column: Search & Mentors List -->
+    <div class="lg:col-span-2 space-y-6">
+
+        <!-- Search Bar -->
+        <div class="glass-card p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
+            <h2 class="text-xl font-extrabold text-deepCharcoal mb-4">Find a Mentor</h2>
+            <form method="GET" action="{{ url('dashboard') }}" class="flex gap-2">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="text" name="q" value="{{ query }}"
+                        placeholder="Search by name, role, skills, or university..."
+                        class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mutedEmerald/20 focus:border-mutedEmerald sm:text-sm bg-slateWhite transition-colors">
+                </div>
+                <button type="submit" class="btn-emerald font-semibold py-3 px-6 rounded-lg text-sm transition-colors">
+                    Search
+                </button>
+            </form>
+            {% if query %}
+            <p class="mt-3 text-sm text-gray-500">Showing results for "<span class="font-bold text-deepCharcoal">{{
+                    query }}</span>"</p>
+            {% endif %}
+        </div>
+
+        <!-- Mentors List -->
+        <div class="space-y-4">
+            {% if query and not recommended_mentors %}
+            <div class="p-8 text-center bg-white rounded-xl border border-dashed border-gray-300">
+                <p class="text-gray-500">No mentors found matching your search. Try different keywords.</p>
+            </div>
+            {% endif %}
+
+            <h3 class="text-lg font-bold text-deepCharcoal mb-2">{{ "Search Results" if query else "Recommended based on
+                recent activity" }}</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for u in recommended_mentors %}
+                <div
+                    class="glass-card p-4 rounded-xl bg-white hover:border-mutedEmerald transition-all border border-transparent hover:shadow-md flex flex-col">
+                    <!-- Top row: avatar + name/role/level -->
+                    <div class="flex items-start space-x-3 mb-3">
+                        <a href="{{ url('user_profile', args=[u.id]) }}" title="View {{ u.first_name }}'s profile"
+                            class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-tr from-mutedEmerald to-teal-400 text-white flex items-center justify-center font-bold text-xl shadow hover:scale-105 transition-transform">
+                            {{ u.first_name[0]|upper if u.first_name else u.username[0]|upper }}
+                        </a>
+                        <div class="min-w-0 flex-1">
+                            <a href="{{ url('user_profile', args=[u.id]) }}"
+                                class="font-bold text-deepCharcoal hover:text-mutedEmerald transition-colors leading-tight block truncate">
+                                {{ u.first_name or u.username }}
+                            </a>
+                            {% if u.roles %}
+                            <p class="text-xs text-gray-500 truncate">{{ u.roles.split(',')[0].strip() }}</p>
+                            {% endif %}
+                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                {% if u.level %}
+                                <span
+                                    class="px-2 py-0.5 bg-mutedEmerald/10 text-mutedEmerald text-xs font-semibold rounded-full">
+                                    {{ u.get_level_display_label() }}
+                                </span>
+                                {% endif %}
+                                {% if u.years_of_experience is not none %}
+                                <span class="text-xs text-gray-400">{{ u.years_of_experience }}y exp</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills snippet -->
+                    <div class="flex-grow">
+                        {% if u.skills %}
+                        <p class="text-xs text-gray-600 line-clamp-2 mb-3 pl-1"><span
+                                class="font-semibold text-gray-800">Skills:</span> {{ u.skills }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-2 mt-auto pt-2">
+                        <a href="{{ url('user_profile', args=[u.id]) }}"
+                            class="flex-1 text-center text-xs font-semibold bg-gray-50 border border-gray-200 hover:border-mutedEmerald hover:text-mutedEmerald py-2 rounded-lg transition-colors">
+                            View Profile
+                        </a>
+                        <a href="{{ url('request_meeting', args=[u.id]) }}"
+                            class="flex-1 text-center text-xs font-semibold btn-emerald py-2 rounded-lg text-white">
+                            Request (1 TKN)
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                {% if not query %}
+                <div class="col-span-2 p-8 text-center bg-white rounded-xl border border-dashed border-gray-300">
+                    <p class="text-gray-500 italic">No recommendations available right now.</p>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Right Column: Recent Activity Snapshot -->
+    <div class="space-y-6">
+        <div>
+            <h3 class="text-xl font-extrabold text-deepCharcoal mb-4 border-b pb-2">Recent Learning (Mentee)</h3>
+            <div class="space-y-3">
+                {% if recent_mentee %}
+                {% for m in recent_mentee %}
+                <div
+                    class="glass-card p-4 rounded-xl border-l-4 {% if m.status == 'PENDING' %}border-yellow-400{% elif m.status == 'ACCEPTED' %}border-green-500{% elif m.status == 'COMPLETED' %}border-blue-500{% else %}border-red-500{% endif %} bg-white shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <p class="font-bold text-sm text-deepCharcoal truncate">Mentor: {{ m.mentor.first_name }}</p>
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full {% if m.status == 'PENDING' %}bg-yellow-100 text-yellow-800{% elif m.status == 'ACCEPTED' %}bg-green-100 text-green-800{% elif m.status == 'COMPLETED' %}bg-blue-100 text-blue-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ m.status }}
+                        </span>
+                    </div>
+                    <!-- Mentee doesn't see complete button, just wait or evaluate if done -->
+                </div>
+                {% endfor %}
+                <a href="{{ url('my_mentorships') }}"
+                    class="block text-center text-sm font-medium text-mutedEmerald hover:underline mt-2">View all
+                    learning requests &rarr;</a>
+                {% else %}
+                <p class="text-sm text-gray-500 p-4 bg-gray-50 rounded-lg text-center border border-dashed">No recent
+                    activity.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-extrabold text-deepCharcoal mb-4 border-b pb-2">Recent Teaching (Mentor)</h3>
+            <div class="space-y-3">
+                {% if recent_mentor %}
+                {% for m in recent_mentor %}
+                <div
+                    class="glass-card p-4 rounded-xl border-l-4 {% if m.status == 'PENDING' %}border-yellow-400{% elif m.status == 'ACCEPTED' %}border-green-500{% elif m.status == 'COMPLETED' %}border-blue-500{% else %}border-red-500{% endif %} bg-white shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <p class="font-bold text-sm text-deepCharcoal truncate">Mentee: {{ m.mentee.first_name }}</p>
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full {% if m.status == 'PENDING' %}bg-yellow-100 text-yellow-800{% elif m.status == 'ACCEPTED' %}bg-green-100 text-green-800{% elif m.status == 'COMPLETED' %}bg-blue-100 text-blue-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ m.status }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+                <a href="{{ url('my_requests') }}"
+                    class="block text-center text-sm font-medium text-mutedEmerald hover:underline mt-2">View all
+                    teaching requests &rarr;</a>
+                {% else %}
+                <p class="text-sm text-gray-500 p-4 bg-gray-50 rounded-lg text-center border border-dashed">No recent
+                    activity.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

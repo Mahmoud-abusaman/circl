@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh]">
+    <div class="glass-card w-full max-w-md p-8 rounded-2xl bg-white shadow-xl mt-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-deepCharcoal tracking-tight">Join Circl</h1>
+            <p class="text-gray-500 mt-2 text-sm">Start your mentorship journey today</p>
+        </div>
+        
+        <form method="POST" action="{{ url('register') }}" class="space-y-5">
+            {{ csrf_input }}
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Full Name</label>
+                <input type="text" name="full_name" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Email</label>
+                <input type="email" name="email" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Password</label>
+                <input type="password" name="password" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Confirm Password</label>
+                <input type="password" name="confirm_password" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+            
+            <button type="submit" class="w-full btn-emerald font-semibold py-3 rounded-lg shadow-md text-lg mt-2">
+                Sign Up
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center bg-gray-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600">Already have an account? <a href="{{ url('login') }}" class="text-mutedEmerald font-semibold hover:underline">Sign in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

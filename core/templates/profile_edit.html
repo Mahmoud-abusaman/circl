@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="glass-card p-8 rounded-2xl bg-white shadow-xl">
+        <h2 class="text-3xl font-extrabold text-deepCharcoal mb-1">
+            {% if not request.user.profile_ready %}Complete Your Profile{% else %}Edit Your Profile{% endif %}
+        </h2>
+        <p class="text-gray-500 mb-8 border-b pb-4 text-sm">Fields marked <span class="text-red-500 font-bold">*</span>
+            are required.</p>
+
+        <form method="POST" action="{{ url('profile_edit') }}" enctype="multipart/form-data" class="space-y-8">
+            {{ csrf_input }}
+
+            <!-- Section: Identity -->
+            <div>
+                <h3 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Academic Background</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Field of Study <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="study_field" value="{{ request.user.study_field }}" required
+                            placeholder="e.g. Computer Science, Business..."
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">University <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="university" value="{{ request.user.university }}" required
+                            placeholder="e.g. Cairo University..."
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Birth Date <span
+                                class="text-red-500">*</span></label>
+                        <input type="date" name="birth_date"
+                            value="{{ request.user.birth_date.isoformat() if request.user.birth_date else '' }}"
+                            required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">LinkedIn Profile <span
+                                class="text-red-500">*</span></label>
+                        <input type="url" name="linkedin_link" value="{{ request.user.linkedin_link }}" required
+                            placeholder="https://linkedin.com/in/..."
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Career -->
+            <div>
+                <h3 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Career Profile</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Career Level <span
+                                class="text-red-500">*</span></label>
+                        <select name="level" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                            <option value="">-- Select Level --</option>
+                            {% for val, label in [('fresher','Fresher'), ('junior','Junior'), ('mid','Mid-Level'),
+                            ('senior','Senior'), ('lead','Lead'), ('executive','Executive')] %}
+                            <option value="{{ val }}" {% if request.user.level==val %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Years of Experience <span
+                                class="text-red-500">*</span></label>
+                        <input type="number" name="years_of_experience" min="0" max="50"
+                            value="{{ request.user.years_of_experience if request.user.years_of_experience is not none else '' }}"
+                            required placeholder="e.g. 5"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Roles Held <span
+                                class="text-red-500">*</span></label>
+                        <textarea name="roles" required placeholder="Senior Dev, Project Manager..."
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-20 resize-none">{{ request.user.roles }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Availability Times</label>
+                        <input type="text" name="availability_times" value="{{ request.user.availability_times }}"
+                            placeholder="e.g. Mon-Fri 6PM-9PM"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: About -->
+            <div>
+                <h3 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">About You</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Professional Summary <span
+                                class="text-red-500">*</span></label>
+                        <textarea name="summary" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-24 resize-none"
+                            placeholder="A short bio about yourself...">{{ request.user.summary }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Skills <span
+                                class="text-red-500">*</span></label>
+                        <textarea name="skills" required placeholder="Python, Django, Leadership..."
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-20 resize-none">{{ request.user.skills }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Previous Experience <span
+                                class="text-red-500">*</span></label>
+                        <textarea name="experience" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-20 resize-none"
+                            placeholder="Companies, projects, achievements...">{{ request.user.experience }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Interests</label>
+                        <textarea name="interests"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-20 resize-none">{{ request.user.interests }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">Fun Fact</label>
+                        <textarea name="fun_fact"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-20 resize-none">{{ request.user.fun_fact }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">What I Can Share /
+                            Offer</label>
+                        <textarea name="offerings" placeholder="Resources, network, tools..."
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-20 resize-none">{{ request.user.offerings }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-deepCharcoal mb-1.5">CV (PDF/DOCX)</label>
+                        <input type="file" name="cv"
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-mutedEmerald transition-all outline-none bg-slateWhite text-sm">
+                        {% if request.user.cv %}
+                        <p class="text-xs text-gray-500 mt-1">Current: <a href="{{ request.user.cv.url }}"
+                                class="text-mutedEmerald underline" target="_blank">View CV</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t">
+                <button type="submit"
+                    class="w-full md:w-auto btn-emerald font-semibold py-3 px-10 rounded-lg shadow-md text-base">
+                    Save Profile →
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

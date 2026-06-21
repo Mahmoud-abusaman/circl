@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh]">
+    <div class="glass-card w-full max-w-md p-8 rounded-2xl bg-white shadow-xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-deepCharcoal tracking-tight">Welcome Back</h1>
+            <p class="text-gray-500 mt-2 text-sm">Sign in to your Circl account</p>
+        </div>
+        
+        <form method="POST" action="{{ url('login') }}" class="space-y-6">
+            {{ csrf_input }}
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-2">Email</label>
+                <input type="email" name="email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-2">Password</label>
+                <input type="password" name="password" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+            
+            <button type="submit" class="w-full btn-emerald font-semibold py-3 rounded-lg shadow-md text-lg">
+                Log In
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center bg-gray-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600">Don't have an account? <a href="{{ url('register') }}" class="text-mutedEmerald font-semibold hover:underline">Create an account</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

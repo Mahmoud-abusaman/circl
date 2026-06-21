@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-5">
+
+    <!-- Back -->
+    <a href="javascript:history.back()"
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-mutedEmerald transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
+    </a>
+
+    <!-- ── Hero Card ── -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+        <!-- Content -->
+        <div class="px-6 py-6">
+
+            <!-- Avatar + info row -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+
+                <!-- Avatar + name/level -->
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-mutedEmerald to-teal-500
+                                text-white flex items-center justify-center font-extrabold text-3xl
+                                shadow-md border-4 border-gray-100 flex-shrink-0">
+                        {{ (profile_user.first_name[0] if profile_user.first_name else profile_user.username[0])|upper
+                        }}
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-extrabold text-deepCharcoal leading-tight">
+                            {{ profile_user.first_name or profile_user.username }}
+                        </h1>
+                        <div class="flex flex-wrap items-center gap-2 mt-1">
+                            {% if profile_user.level %}
+                            <span
+                                class="px-2.5 py-0.5 bg-mutedEmerald/10 text-mutedEmerald text-xs font-bold rounded-full border border-mutedEmerald/25">
+                                {{ profile_user.get_level_display_label() }}
+                            </span>
+                            {% endif %}
+                            {% if profile_user.roles %}
+                            <span class="text-sm text-gray-500 font-medium">
+                                {{ profile_user.roles.split(',')[0].strip() }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    {% if profile_user.linkedin_link %}
+                    <a href="{{ profile_user.linkedin_link }}" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold
+                              bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                        LinkedIn
+                    </a>
+                    {% endif %}
+                    {% if can_request %}
+                    <a href="{{ url('request_meeting', args=[profile_user.id]) }}"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold btn-emerald shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Request Mentorship — 1 Token
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                    <p class="text-2xl font-extrabold text-deepCharcoal">
+                        {{ profile_user.years_of_experience if profile_user.years_of_experience is not none else '—' }}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-0.5 font-medium">Years Exp.</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                    <p class="text-2xl font-extrabold text-deepCharcoal">{{ total_evals }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5 font-medium">Reviews</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                    <p class="text-2xl font-extrabold text-deepCharcoal">
+                        {% if avg_ratings.avg_skills %}
+                        {{ "%.1f"|format(avg_ratings.avg_skills) }}<span class="text-sm text-gray-400">/5</span>
+                        {% else %}—{% endif %}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-0.5 font-medium">Avg Rating</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                    <p class="text-lg font-extrabold text-deepCharcoal leading-snug">
+                        {{ profile_user.get_level_display_label() or '—' }}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-0.5 font-medium">Level</p>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            {% if profile_user.summary %}
+            <blockquote class="border-l-4 border-mutedEmerald pl-4 text-gray-600 italic leading-relaxed text-sm">
+                "{{ profile_user.summary }}"
+            </blockquote>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── Detail Grid ── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- Skills -->
+        {% if profile_user.skills %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Skills</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for skill in profile_user.skills.split(',') %}
+                {% set s = skill.strip() %}
+                {% if s %}
+                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">{{ s }}</span>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Experience -->
+        {% if profile_user.experience %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Experience</h2>
+            <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ profile_user.experience }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Education -->
+        {% if profile_user.university or profile_user.study_field %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Education</h2>
+            {% if profile_user.university %}
+            <p class="text-sm font-bold text-deepCharcoal">{{ profile_user.university }}</p>
+            {% endif %}
+            {% if profile_user.study_field %}
+            <p class="text-sm text-gray-500 mt-0.5">{{ profile_user.study_field }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Availability -->
+        {% if profile_user.availability_times %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Availability</h2>
+            <div class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-mutedEmerald mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-sm text-gray-700">{{ profile_user.availability_times }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Interests -->
+        {% if profile_user.interests %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">Interests</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for item in profile_user.interests.split(',') %}
+                {% set i = item.strip() %}
+                {% if i %}
+                <span class="px-3 py-1 bg-teal-50 text-teal-700 text-sm font-medium rounded-full">{{ i }}</span>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Offerings -->
+        {% if profile_user.offerings %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">What I Can Offer</h2>
+            <p class="text-sm text-gray-700 leading-relaxed">{{ profile_user.offerings }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Fun Fact (full width) -->
+        {% if profile_user.fun_fact %}
+        <div class="bg-gradient-to-r from-deepCharcoal to-slate-700 text-white rounded-2xl shadow-sm p-6 md:col-span-2">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-3">Fun Fact ✨</h2>
+            <p class="text-sm leading-relaxed opacity-90">{{ profile_user.fun_fact }}</p>
+        </div>
+        {% endif %}
+
+        <!-- CV (full width) -->
+        {% if profile_user.cv %}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:col-span-2">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-mutedEmerald mb-4">CV / Résumé</h2>
+            <a href="{{ profile_user.cv.url }}" target="_blank"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-mutedEmerald
+                      text-mutedEmerald text-sm font-semibold hover:bg-mutedEmerald hover:text-white transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+                Download CV
+            </a>
+        </div>
+        {% endif %}
+
+    </div><!-- /grid -->
+</div>
+{% endblock %}

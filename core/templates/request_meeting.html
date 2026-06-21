@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-4">
+    <div class="mb-6 flex items-center">
+        <a href="{{ url('dashboard') }}"
+            class="text-sm font-medium text-gray-500 hover:text-mutedEmerald flex items-center transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+                </path>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="glass-card p-8 rounded-2xl bg-white shadow-gradient">
+        <div class="flex items-center space-x-4 mb-6 pb-6 border-b">
+            <div
+                class="w-16 h-16 rounded-full bg-gradient-to-tr from-mutedEmerald to-teal-400 text-white flex items-center justify-center font-bold text-2xl shadow-inner">
+                {{ mentor.first_name[0]|upper }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-extrabold text-deepCharcoal">Request Mentorship from {{ mentor.first_name }}
+                </h2>
+                <p class="text-gray-500 text-sm mt-1">{{ mentor.roles }}</p>
+            </div>
+        </div>
+
+        <div class="mb-6 bg-slateWhite p-4 rounded-xl border border-gray-100">
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Mentor's Expertise</p>
+            <p class="text-sm font-medium text-deepCharcoal mb-2">{{ mentor.skills }}</p>
+            {% if mentor.summary %}
+            <p class="text-sm text-gray-600 line-clamp-2">"{{ mentor.summary }}"</p>
+            {% endif %}
+            {% if mentor.cv %}
+            <p class="text-xs mt-2"><a href="{{ mentor.cv.url }}" class="text-mutedEmerald underline"
+                    target="_blank">View Mentor CV</a></p>
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{{ url('request_meeting', args=[mentor.id]) }}" class="space-y-6">
+            {{ csrf_input }}
+
+            <div>
+                <label class="flex items-center text-sm font-semibold text-deepCharcoal mb-2">
+                    Your Calendly Link <span class="text-red-500 ml-1">*</span>
+                    <div class="relative group ml-2 flex items-center cursor-help">
+                        <svg class="w-4 h-4 text-gray-400 hover:text-mutedEmerald transition-colors" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <!-- Tooltip Popup -->
+                        <div
+                            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
+                            <p class="font-bold mb-1">What is Calendly?</p>
+                            <p class="text-gray-300">A free scheduling tool. Sign up at calendly.com, connect your
+                                calendar, and paste your personal event link here so the mentor can book a time that
+                                works for both of you.</p>
+                            <!-- little triangle pointer -->
+                            <div
+                                class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900">
+                            </div>
+                        </div>
+                    </div>
+                </label>
+                <input type="url" name="calendly_link" required placeholder="https://calendly.com/yourname/30min"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-2">Why did you choose this mentor? <span
+                        class="text-red-500">*</span></label>
+                <textarea name="why_choose_mentor" required
+                    placeholder="Explain why their background aligns with your goals..."
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-24 resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-deepCharcoal mb-2">Session Objectives <span
+                        class="text-red-500">*</span></label>
+                <textarea name="session_objectives" required
+                    placeholder="What exactly do you want to achieve in this session?"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-mutedEmerald focus:ring-2 focus:ring-mutedEmerald/20 transition-all outline-none bg-slateWhite h-24 resize-none"></textarea>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mt-6 flex justify-between items-center">
+                <div class="text-sm">
+                    <p class="font-bold text-deepCharcoal">Token Cost</p>
+                    <p class="text-gray-500">1 Token upfront. 4 more if accepted.</p>
+                </div>
+                <button type="submit" class="btn-emerald font-semibold py-3 px-8 rounded-lg shadow-md text-lg">
+                    Request (1 Token)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
