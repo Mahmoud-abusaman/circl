@@ -60,7 +60,6 @@ Every user on Circl has a comprehensive profile that highlights their:
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **Real-time:** [Django Channels](https://channels.readthedocs.io/) & [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 - **Database:** SQLite (Development) / PostgreSQL (Production ready)
-- **Task Queue:** [Redis](https://redis.io/) (for Channels)
 
 ## 🛠 Installation & Setup
 
