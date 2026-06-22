@@ -7,6 +7,8 @@ from django.db.models import Q, Avg
 from .models import CustomUser, Meeting, Evaluation
 from django.utils import timezone
 import datetime
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 def register_view(request):
     if request.method == 'POST':
@@ -296,6 +298,20 @@ def request_meeting(request, mentor_id):
                     token_escrowed=1
                 )
                 
+            # Send real-time notification to mentor
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"user_{mentor.id}",
+                {
+                    "type": "send_notification",
+                    "content": {
+                        "title": "New Meeting Request!",
+                        "message": f"{mentee.first_name or mentee.username} has requested a mentorship session.",
+                        "type": "REQUEST_RECEIVED"
+                    }
+                }
+            )
+
             messages.success(request, 'Meeting requested successfully!')
             return redirect('my_mentorships')
             
@@ -366,6 +382,22 @@ def meeting_action(request, meeting_id, action):
                 messages.success(request, "Meeting completed and tokens awarded to mentor.")
             else:
                 messages.error(request, "Invalid action.")
+
+            # Notify mentee if status changed to ACCEPTED, REJECTED
+            if action in ['accept', 'reject']:
+                channel_layer = get_channel_layer()
+                verb = "accepted" if action == 'accept' else "rejected"
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{mentee.id}",
+                    {
+                        "type": "send_notification",
+                        "content": {
+                            "title": f"Meeting {verb.capitalize()}!",
+                            "message": f"Your mentorship request with {mentor.first_name or mentor.username} was {verb}.",
+                            "action": action
+                        }
+                    }
+                )
     except Exception as e:
         messages.error(request, str(e))
 

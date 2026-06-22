@@ -71,7 +71,8 @@
     </style>
 </head>
 
-<body class="antialiased min-h-screen flex flex-col">
+<body class="antialiased min-h-screen flex flex-col"
+    data-authenticated="{{ 'true' if request.user.is_authenticated else 'false' }}">
     {% if request.user.is_authenticated %}
     <nav class="app-nav p-4 sticky top-0 z-50 shadow-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
@@ -130,6 +131,66 @@
 
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Real-time Notification Toast -->
+    <div id="notification-toast"
+        class="fixed bottom-5 right-5 z-[100] transform translate-y-20 opacity-0 transition-all duration-500 max-w-sm w-full">
+        <div
+            class="bg-deepCharcoal text-white p-4 rounded-xl shadow-2xl border border-mutedEmerald/30 flex items-start gap-4">
+            <div class="bg-mutedEmerald/20 p-2 rounded-lg">
+                <svg class="w-6 h-6 text-mutedEmerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h4 id="toast-title" class="font-bold text-sm"></h4>
+                <p id="toast-message" class="text-xs text-gray-300 mt-1"></p>
+            </div>
+            <button onclick="hideToast()" class="text-gray-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showToast(title, message) {
+            const toast = document.getElementById('notification-toast');
+            const titleEl = document.getElementById('toast-title');
+            const messageEl = document.getElementById('toast-message');
+            if (titleEl) titleEl.innerText = title;
+            if (messageEl) messageEl.innerText = message;
+            if (toast) toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(hideToast, 6000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('notification-toast');
+            if (toast) toast.classList.add('translate-y-20', 'opacity-0');
+        }
+
+        const isAuthenticated = document.body.dataset.authenticated === 'true';
+        if (isAuthenticated) {
+            const socket = new WebSocket(
+                (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+                + window.location.host
+                + '/ws/notifications/'
+            );
+
+            socket.onmessage = function (e) {
+                const data = JSON.parse(e.data);
+                showToast(data.title, data.message);
+            };
+
+            socket.onclose = function (e) {
+                console.error('Notification socket closed unexpectedly');
+            };
+        }
+    </script>
 </body>
 
 </html>
