@@ -16,7 +16,4 @@ Welcome to the Circl Mentorship Platform! This is a dual-sided mentorship applic
 - Jinja2
 - Tailwind CSS
 
-## License
-(Add license information here.)
-
-Link: https://mahmoudabusaman.pythonanywhere.com/
+## Link: https://mahmoudabusaman.pythonanywhere.com/
