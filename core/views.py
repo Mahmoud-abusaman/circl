@@ -7,8 +7,12 @@ from django.db.models import Q, Avg
 from .models import CustomUser, Meeting, Evaluation
 from django.utils import timezone
 import datetime
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+try:
+    from channels.layers import get_channel_layer
+    from asgiref.sync import async_to_sync
+    CHANNELS_AVAILABLE = True
+except ImportError:
+    CHANNELS_AVAILABLE = False
 
 def register_view(request):
     if request.method == 'POST':
@@ -299,18 +303,19 @@ def request_meeting(request, mentor_id):
                 )
                 
             # Send real-time notification to mentor
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f"user_{mentor.id}",
-                {
-                    "type": "send_notification",
-                    "content": {
-                        "title": "New Meeting Request!",
-                        "message": f"{mentee.first_name or mentee.username} has requested a mentorship session.",
-                        "type": "REQUEST_RECEIVED"
+            if CHANNELS_AVAILABLE:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{mentor.id}",
+                    {
+                        "type": "send_notification",
+                        "content": {
+                            "title": "New Meeting Request!",
+                            "message": f"{mentee.first_name or mentee.username} has requested a mentorship session.",
+                            "type": "REQUEST_RECEIVED"
+                        }
                     }
-                }
-            )
+                )
 
             messages.success(request, 'Meeting requested successfully!')
             return redirect('my_mentorships')
@@ -384,7 +389,7 @@ def meeting_action(request, meeting_id, action):
                 messages.error(request, "Invalid action.")
 
             # Notify mentee if status changed to ACCEPTED, REJECTED
-            if action in ['accept', 'reject']:
+            if action in ['accept', 'reject'] and CHANNELS_AVAILABLE:
                 channel_layer = get_channel_layer()
                 verb = "accepted" if action == 'accept' else "rejected"
                 async_to_sync(channel_layer.group_send)(
