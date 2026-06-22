@@ -72,8 +72,7 @@
 </head>
 
 <body class="antialiased min-h-screen flex flex-col">
-    {% set is_auth = request.user.is_authenticated %}
-    {% if is_auth %}
+    {% if request.user.is_authenticated %}
     <nav class="app-nav p-4 sticky top-0 z-50 shadow-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <a href="{{ url('dashboard') }}"

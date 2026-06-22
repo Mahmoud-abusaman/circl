@@ -30,14 +30,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'solo_project.urls'
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.jinja2.Jinja2',
-        'DIRS': [BASE_DIR / 'core' / 'templates'],
-        'APP_DIRS': False,
-        'OPTIONS': {
-            'environment': 'solo_project.jinja2.environment',
-        },
-    },
+
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],

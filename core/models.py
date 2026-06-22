@@ -57,7 +57,6 @@ class Evaluation(models.Model):
     evaluator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='given_evaluations')
     evaluatee = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='received_evaluations')
     
-    # Ratings based on the profile "things"
     skills_rating = models.IntegerField(default=0)
     experience_rating = models.IntegerField(default=0)
     roles_rating = models.IntegerField(default=0)
