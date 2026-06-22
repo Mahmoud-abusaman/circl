@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'core',
 ]
 
@@ -30,10 +31,23 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'solo_project.urls'
 
 TEMPLATES = [
-
+    {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'DIRS': [BASE_DIR / 'core' / 'templates'],
+        'APP_DIRS': True,   
+        'OPTIONS': {
+            'environment': 'solo_project.jinja2.environment',
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates', BASE_DIR / 'core' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -47,6 +61,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'solo_project.wsgi.application'
+ASGI_APPLICATION = 'solo_project.asgi.application'
 
 DATABASES = {
     'default': {
