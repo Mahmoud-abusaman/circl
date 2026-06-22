@@ -15,5 +15,7 @@ Welcome to the Circl Mentorship Platform! This is a dual-sided mentorship applic
 - Django
 - Jinja2
 - Tailwind CSS
+- channels library
+- Html, Css,Js
 
 ## Link: https://mahmoudabusaman.pythonanywhere.com/
