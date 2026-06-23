@@ -7,22 +7,17 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-solo-project-k
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-# Use ASGI only if explicitly requested or if we're not on PythonAnywhere
-IS_ASGI = os.environ.get('DJANGO_ASGI', 'False') == 'True'
-
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'core',
 ]
-
-if IS_ASGI:
-    INSTALLED_APPS.insert(0, 'daphne')
-    INSTALLED_APPS.append('channels')
 
 
 CHANNEL_LAYERS = {
